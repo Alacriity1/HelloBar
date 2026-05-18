@@ -20,14 +20,7 @@ struct ContentView: View {
             }
             .pickerStyle(.segmented)
             
-            switch selectedPanel {
-                    case .overview:
-                        overviewSection
-                    case .metrics:
-                        metricsSection
-                    case .settings:
-                        settingsSection
-                    }            
+            selectedPanelSection
             
             Divider()
 
@@ -38,6 +31,19 @@ struct ContentView: View {
         .padding()
         .frame(width: 220)
     }
+    
+    @ViewBuilder
+        private var selectedPanelSection: some View {
+            switch selectedPanel {
+            case .overview:
+                overviewSection
+            case .metrics:
+                metricsSection
+            case .settings:
+                settingsSection
+            }
+        }
+    
     private var overviewSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             MetricRow(title: "Status", value: status.rawValue)
