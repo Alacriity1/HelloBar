@@ -1,0 +1,16 @@
+# Example Homebrew Cask for a future HelloBar release.
+#
+# This will not work until there is a real downloadable release artifact.
+# Replace the version, sha256, url, and homepage values before publishing.
+
+cask "hellobar" do
+  version "1.0.0"
+  sha256 "REPLACE_WITH_RELEASE_SHA256"
+
+  url "https://github.com/OWNER/HelloBar/releases/download/v#{version}/HelloBar-#{version}.zip"
+  name "HelloBar"
+  desc "Small macOS menu bar app for time and status"
+  homepage "https://github.com/OWNER/HelloBar"
+
+  app "HelloBar.app"
+end
