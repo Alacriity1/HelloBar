@@ -4,29 +4,35 @@ struct ContentView: View {
     @Binding var status: BarStatus
     @Binding var lastUpdated: Date
     
+    let metrics: BarMetrics
+    let refreshMetrics: () -> Void
+    
     var body: some View {
         VStack {
-            Text("HelloBar")
+            Text("Activity")
                 .font(.headline)
-
-            Text("Current time shown in menu bar")
             
-            Text("Updated \(lastUpdated.formatted(date: .omitted, time: .shortened))")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            Divider()
+            MetricRow(
+                title: "Progress",
+                value: metrics.progress.formatted(.percent.precision(.fractionLength(0)))
+            )
             
-            Picker("Status", selection: $status) {
-                ForEach(BarStatus.allCases) { status in
-                    Label(status.rawValue, systemImage: status.symbolName)
-                        .tag(status)
+            ProgressView(value: metrics.progress)
+            
+            MetricRow(
+                    title: "Load",
+                    value: metrics.load.formatted(.percent.precision(.fractionLength(0)))
+            )
+            
+            MetricRow(
+                    title: "Events",
+                    value: "\(metrics.eventCount)"
+            )
+            
+            Button("Refresh Metrics") {
+                    refreshMetrics()
                 }
-            }
-            .pickerStyle(.inline)
-            .onChange(of: status) {
-                lastUpdated = Date();
-            }
+            
             
             Divider()
 
@@ -36,5 +42,22 @@ struct ContentView: View {
         }
         .padding()
         .frame(width: 220)
+    }
+}
+
+struct MetricRow: View {
+    let title: String
+    let value: String
+    
+    var body: some View {
+        HStack {
+            Text(title)
+            
+            Spacer()
+            
+            Text(value)
+                .foregroundStyle(.secondary)
+        }
+        .font(.caption)
     }
 }

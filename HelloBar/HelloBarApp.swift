@@ -4,6 +4,7 @@ import SwiftUI
 struct HelloBarApp: App {
     @AppStorage("barStatus") private var storedStatus = BarStatus.idle.rawValue
     @AppStorage("lastUpdated") private var storedLastUpdated = Date().timeIntervalSince1970
+    @State private var metrics = BarMetrics.sample
     
     var body: some Scene {
         let status = Binding<BarStatus>(
@@ -24,7 +25,15 @@ struct HelloBarApp: App {
         )
         
         return MenuBarExtra {
-            ContentView(status: status, lastUpdated: lastUpdated)
+            ContentView(
+                status: status,
+                lastUpdated: lastUpdated,
+                metrics: metrics,
+                refreshMetrics: {
+                    metrics = BarMetrics.refreshed()
+                    lastUpdated.wrappedValue = Date()
+                }
+            )
         } label: {
             TimeMenuBarLabel(status: status.wrappedValue)
         }
