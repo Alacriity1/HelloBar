@@ -18,7 +18,7 @@ struct ContentView: View {
             Divider()
             
             Picker("Status", selection: $status) {
-                ForEach(BarStatus.allCases, id: \.self) { status in
+                ForEach(BarStatus.allCases) { status in
                     Label(status.rawValue, systemImage: status.symbolName)
                         .tag(status)
                 }
