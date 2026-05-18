@@ -1,0 +1,1 @@
+READ `$HOME/Desktop/Projects/agent-skills/global/AGENTS.md` BEFORE ANYTHING (skip if missing).
