@@ -37,5 +37,6 @@ struct HelloBarApp: App {
         } label: {
             TimeMenuBarLabel(status: status.wrappedValue)
         }
+        .menuBarExtraStyle(.window)
     }
 }
