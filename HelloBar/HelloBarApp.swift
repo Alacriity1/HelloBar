@@ -4,6 +4,10 @@ import SwiftUI
 struct HelloBarApp: App {
     @AppStorage("barStatus") private var storedStatus = BarStatus.idle.rawValue
     @AppStorage("lastUpdated") private var storedLastUpdated = Date().timeIntervalSince1970
+    @AppStorage("showsMenuBarIcon") private var showsMenuBarIcon = true
+    @AppStorage("showsMenuBarTime") private var showsMenuBarTime = true
+    @AppStorage("showsMenuBarStatus") private var showsMenuBarStatus = false
+    @AppStorage("showsMenuBarProgress") private var showsMenuBarProgress = false
     @State private var metrics = BarMetrics.sample
     
     var body: some Scene {
@@ -28,6 +32,10 @@ struct HelloBarApp: App {
             ContentView(
                 status: status,
                 lastUpdated: lastUpdated,
+                showsMenuBarIcon: $showsMenuBarIcon,
+                showsMenuBarTime: $showsMenuBarTime,
+                showsMenuBarStatus: $showsMenuBarStatus,
+                showsMenuBarProgress: $showsMenuBarProgress,
                 metrics: metrics,
                 refreshMetrics: {
                     metrics = BarMetrics.refreshed()
@@ -35,7 +43,14 @@ struct HelloBarApp: App {
                 }
             )
         } label: {
-            TimeMenuBarLabel(status: status.wrappedValue)
+            TimeMenuBarLabel(
+                status: status.wrappedValue,
+                metrics: metrics,
+                showsIcon: showsMenuBarIcon,
+                showsTime: showsMenuBarTime,
+                showsStatus: showsMenuBarStatus,
+                showsProgress: showsMenuBarProgress
+            )
         }
         .menuBarExtraStyle(.window)
     }

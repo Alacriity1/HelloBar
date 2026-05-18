@@ -3,6 +3,10 @@ import SwiftUI
 struct ContentView: View {
     @Binding var status: BarStatus
     @Binding var lastUpdated: Date
+    @Binding var showsMenuBarIcon: Bool
+    @Binding var showsMenuBarTime: Bool
+    @Binding var showsMenuBarStatus: Bool
+    @Binding var showsMenuBarProgress: Bool
     @State private var selectedPanel: BarPanel = .overview
     
     let metrics: BarMetrics
@@ -44,6 +48,30 @@ struct ContentView: View {
             }
         }
     
+    private func menuBarVisibilityBinding( //if the user turns something off, only allow it when more than one item is currently enabled
+        for setting: Binding<Bool>
+    ) -> Binding<Bool> {
+        Binding(
+            get: {
+                setting.wrappedValue
+            },
+            set: { newValue in
+                if newValue || enabledMenuBarItemCount > 1 {
+                    setting.wrappedValue = newValue
+                }
+            }
+        )
+    }
+    
+    private var enabledMenuBarItemCount: Int {
+        [
+            showsMenuBarIcon,
+            showsMenuBarTime,
+            showsMenuBarStatus,
+            showsMenuBarProgress
+        ].filter { $0 }.count
+    }
+    
     private var overviewSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             MetricRow(title: "Status", value: status.rawValue)
@@ -81,16 +109,34 @@ struct ContentView: View {
     }
 
     private var settingsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Picker("Status", selection: $status) {
-                ForEach(BarStatus.allCases) { status in
-                    Label(status.rawValue, systemImage: status.symbolName)
-                        .tag(status)
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Current Status")
+                    .font(.headline)
+
+                Picker("Status", selection: $status) {
+                    ForEach(BarStatus.allCases) { status in
+                        Label(status.rawValue, systemImage: status.symbolName)
+                            .tag(status)
+                    }
+                }
+                .pickerStyle(.inline)
+                .labelsHidden()
+                .onChange(of: status) {
+                    lastUpdated = Date()
                 }
             }
-            .pickerStyle(.inline)
-            .onChange(of: status) {
-                lastUpdated = Date()
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Shown in Menu Bar")
+                    .font(.headline)
+
+                Toggle("Icon", isOn: menuBarVisibilityBinding(for: $showsMenuBarIcon))
+                Toggle("Time", isOn: menuBarVisibilityBinding(for: $showsMenuBarTime))
+                Toggle("Status", isOn: menuBarVisibilityBinding(for: $showsMenuBarStatus))
+                Toggle("Progress Value", isOn: menuBarVisibilityBinding(for: $showsMenuBarProgress))
             }
         }
     }
