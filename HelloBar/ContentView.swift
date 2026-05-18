@@ -101,6 +101,15 @@ struct ContentView: View {
                 title: "Events",
                 value: "\(metrics.eventCount)"
             )
+            
+            Divider()
+
+            Text("Usage")
+                .font(.headline)
+
+            ForEach(metrics.usage) { usageMetric in
+                UsageMetricRow(metric: usageMetric)
+            }
 
             Button("Refresh Metrics") {
                 refreshMetrics()
@@ -156,5 +165,43 @@ struct MetricRow: View {
                 .foregroundStyle(.secondary)
         }
         .font(.caption)
+    }
+}
+
+struct UsageMetricRow: View {
+    let metric: UsageMetric
+    
+    private var progressTint: Color {
+            switch metric.usedFraction {
+            case ..<0.6:
+                return .green
+            case ..<0.85:
+                return .orange
+            default:
+                return .red
+            }
+        }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(metric.title)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+
+                Spacer()
+
+                Text(metric.usedFraction.formatted(.percent.precision(.fractionLength(0))))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            ProgressView(value: metric.usedFraction)
+                .tint(progressTint)
+
+            Text(metric.resetDescription)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
     }
 }
