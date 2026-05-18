@@ -7,6 +7,7 @@ struct ContentView: View {
     @Binding var showsMenuBarTime: Bool
     @Binding var showsMenuBarStatus: Bool
     @Binding var showsMenuBarProgress: Bool
+    @Binding var usageAlertThreshold: Double
     @State private var selectedPanel: BarPanel = .overview
     
     let metrics: BarMetrics
@@ -108,7 +109,7 @@ struct ContentView: View {
                 .font(.headline)
 
             ForEach(metrics.usage) { usageMetric in
-                UsageMetricRow(metric: usageMetric)
+                UsageMetricRow(metric: usageMetric, alertThreshold: usageAlertThreshold)
             }
 
             Button("Refresh Metrics") {
@@ -170,6 +171,11 @@ struct MetricRow: View {
 
 struct UsageMetricRow: View {
     let metric: UsageMetric
+    let alertThreshold: Double
+    
+    private var isAlerting: Bool {
+        metric.usedFraction >= alertThreshold
+    }
     
     private var progressTint: Color {
             switch metric.usedFraction {
@@ -202,6 +208,12 @@ struct UsageMetricRow: View {
             Text(metric.resetDescription)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
+            
+            if isAlerting {
+                Label("High usage", systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.red)
+            }
         }
     }
 }

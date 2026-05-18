@@ -8,6 +8,7 @@ struct HelloBarApp: App {
     @AppStorage("showsMenuBarTime") private var showsMenuBarTime = true
     @AppStorage("showsMenuBarStatus") private var showsMenuBarStatus = false
     @AppStorage("showsMenuBarProgress") private var showsMenuBarProgress = false
+    @AppStorage("usageAlertThreshold") private var usageAlertThreshold = 0.9
     @State private var metrics = BarMetrics.sample
     
     var body: some Scene {
@@ -36,6 +37,7 @@ struct HelloBarApp: App {
                 showsMenuBarTime: $showsMenuBarTime,
                 showsMenuBarStatus: $showsMenuBarStatus,
                 showsMenuBarProgress: $showsMenuBarProgress,
+                usageAlertThreshold: $usageAlertThreshold,
                 metrics: metrics,
                 refreshMetrics: {
                     metrics = BarMetrics.refreshed()
