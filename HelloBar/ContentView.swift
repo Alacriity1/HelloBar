@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Binding var status: BarStatus
+    @Binding var lastUpdated: Date
     
     var body: some View {
         VStack {
@@ -9,6 +10,10 @@ struct ContentView: View {
                 .font(.headline)
 
             Text("Current time shown in menu bar")
+            
+            Text("Updated \(lastUpdated.formatted(date: .omitted, time: .shortened))")
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
             Divider()
             
@@ -19,6 +24,9 @@ struct ContentView: View {
                 }
             }
             .pickerStyle(.inline)
+            .onChange(of: status) {
+                lastUpdated = Date();
+            }
             
             Divider()
 
