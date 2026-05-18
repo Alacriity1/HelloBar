@@ -148,6 +148,20 @@ struct ContentView: View {
                 Toggle("Status", isOn: menuBarVisibilityBinding(for: $showsMenuBarStatus))
                 Toggle("Progress Value", isOn: menuBarVisibilityBinding(for: $showsMenuBarProgress))
             }
+            
+            Divider()
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Usage Alert")
+                    .font(.headline)
+
+                MetricRow(
+                    title: "Threshold",
+                    value: usageAlertThreshold.formatted(.percent.precision(.fractionLength(0)))
+                )
+
+                Slider(value: $usageAlertThreshold, in: 0.5...1.0, step: 0.05)
+            }
         }
     }
 }
