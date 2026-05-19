@@ -1,8 +1,25 @@
 import Foundation
 
 struct UsageMetric: Identifiable {
-    let id = UUID()
     let title: String
-    let usedFraction: Double
     let resetDescription: String
+    let usedUnits: Int
+    let limitUnits: Int
+    
+    
+    var id: String {
+        title
+    }
+    
+    var usedFraction: Double {
+        guard limitUnits > 0 else {
+            return 0
+        }
+
+        return Double(usedUnits) / Double(limitUnits)
+    }
+
+    var remainingUnits: Int {
+        max(limitUnits - usedUnits, 0)
+    }
 }

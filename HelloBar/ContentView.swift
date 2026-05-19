@@ -37,7 +37,7 @@ struct ContentView: View {
         .frame(width: 220)
     }
     
-    @ViewBuilder
+        @ViewBuilder
         private var selectedPanelSection: some View {
             switch selectedPanel {
             case .overview:
@@ -109,7 +109,10 @@ struct ContentView: View {
                 .font(.headline)
 
             ForEach(metrics.usage) { usageMetric in
-                UsageMetricRow(metric: usageMetric, alertThreshold: usageAlertThreshold)
+                UsageMetricRow(
+                    metric: usageMetric,
+                    alertThreshold: usageAlertThreshold
+                )
             }
 
             Button("Refresh Metrics") {
@@ -184,6 +187,7 @@ struct MetricRow: View {
 }
 
 struct UsageMetricRow: View {
+    @State private var isShowingDetails = false
     let metric: UsageMetric
     let alertThreshold: Double
     
@@ -227,6 +231,30 @@ struct UsageMetricRow: View {
                 Label("High usage", systemImage: "exclamationmark.triangle.fill")
                     .font(.caption2)
                     .foregroundStyle(.red)
+            }
+            
+            Button {
+                isShowingDetails.toggle()
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: isShowingDetails ? "chevron.down" : "chevron.right")
+                        .frame(width: 12, alignment: .center)
+
+                    Text("Details")
+
+                    Spacer()
+                }
+                .font(.caption)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            if isShowingDetails {
+                VStack(alignment: .leading, spacing: 4) {
+                    MetricRow(title: "Used", value: "\(metric.usedUnits)")
+                    MetricRow(title: "Limit", value: "\(metric.limitUnits)")
+                    MetricRow(title: "Remaining", value: "\(metric.remainingUnits)")
+                }
             }
         }
     }

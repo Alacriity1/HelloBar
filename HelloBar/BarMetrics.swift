@@ -11,28 +11,45 @@ struct BarMetrics{
         load: 0.42,
         eventCount: 12,
         usage: [
-            UsageMetric(title: "Session", usedFraction: 0.24, resetDescription: "Resets in 42m"),
-            UsageMetric(title: "Daily", usedFraction: 0.61, resetDescription: "Resets in 8h")
-            ]
+            UsageMetric(
+                title: "Session",
+                resetDescription: "Resets in 42m",
+                usedUnits: 24,
+                limitUnits: 100
+            ),
+            UsageMetric(
+                title: "Daily",
+                resetDescription: "Resets in 8h",
+                usedUnits: 384,
+                limitUnits: 500
+            ),
+        ]
     )
     
     static func refreshed() -> BarMetrics {
-        BarMetrics(
+        let sessionLimit = 100
+        let sessionUsed = Int.random(in: 0...sessionLimit)
+
+        let dailyLimit = 500
+        let dailyUsed = Int.random(in: 0...dailyLimit)
+        return BarMetrics(
             progress: Double.random(in: 0...1),
             load: Double.random(in: 0...1),
             eventCount: Int.random(in: 0...100),
             usage: [
-                        UsageMetric(
-                            title: "Session",
-                            usedFraction: Double.random(in: 0...1),
-                            resetDescription: "Resets in \(Int.random(in: 15...59))m",
-                        ),
-                        UsageMetric(
-                            title: "Daily",
-                            usedFraction: Double.random(in: 0...1),
-                            resetDescription: "Resets in \(Int.random(in: 1...12))h",
-                        )
-                    ]
+                UsageMetric(
+                    title: "Session",
+                    resetDescription: "Resets in \(Int.random(in: 15...59))m",
+                    usedUnits: sessionUsed,
+                    limitUnits: sessionLimit
+                ),
+                UsageMetric(
+                    title: "Daily",
+                    resetDescription: "Resets in \(Int.random(in: 1...12))h",
+                    usedUnits: dailyUsed,
+                    limitUnits: dailyLimit
+                )
+            ]
         )
     }
 }
