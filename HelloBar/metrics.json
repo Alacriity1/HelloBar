@@ -1,0 +1,19 @@
+{
+  "progress": 0.64,
+  "load": 0.42,
+  "eventCount": 12,
+  "usage": [
+    {
+      "title": "Session",
+      "resetDescription": "Resets in 42m",
+      "usedUnits": 24,
+      "limitUnits": 100
+    },
+    {
+      "title": "Daily",
+      "resetDescription": "Resets in 8h",
+      "usedUnits": 384,
+      "limitUnits": 1000
+    }
+  ]
+}

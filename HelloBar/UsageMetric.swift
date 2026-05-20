@@ -1,6 +1,6 @@
 import Foundation
 
-struct UsageMetric: Identifiable {
+struct UsageMetric: Identifiable, Codable {
     let title: String
     let resetDescription: String
     let usedUnits: Int

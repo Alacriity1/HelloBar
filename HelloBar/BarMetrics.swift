@@ -1,12 +1,12 @@
 import Foundation
 
-struct BarMetrics{
+struct BarMetrics: Codable {
     var progress: Double
     var load: Double
     var eventCount: Int
     var usage: [UsageMetric]
     
-    static let sample = BarMetrics(
+    static let fallback = BarMetrics(
         progress: 0.64,
         load: 0.42,
         eventCount: 12,
@@ -14,13 +14,13 @@ struct BarMetrics{
             UsageMetric(
                 title: "Session",
                 resetDescription: "Resets in 42m",
-                usedUnits: 24,
+                usedUnits: 0,
                 limitUnits: 100
             ),
             UsageMetric(
                 title: "Daily",
                 resetDescription: "Resets in 8h",
-                usedUnits: 384,
+                usedUnits: 0,
                 limitUnits: 500
             ),
         ]

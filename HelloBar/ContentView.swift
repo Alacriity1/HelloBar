@@ -12,6 +12,7 @@ struct ContentView: View {
     
     let metrics: BarMetrics
     let refreshMetrics: () -> Void
+    let metricsLoadError: String?
     
     var body: some View {
         VStack {
@@ -113,6 +114,12 @@ struct ContentView: View {
                     metric: usageMetric,
                     alertThreshold: usageAlertThreshold
                 )
+            }
+            
+            if let metricsLoadError {
+                Label(metricsLoadError, systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.red)
             }
 
             Button("Refresh Metrics") {
