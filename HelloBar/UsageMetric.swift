@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 struct UsageMetric: Identifiable, Codable {
     let title: String

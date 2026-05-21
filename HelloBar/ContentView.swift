@@ -8,7 +8,9 @@ struct ContentView: View {
     @Binding var showsMenuBarStatus: Bool
     @Binding var showsMenuBarProgress: Bool
     @Binding var usageAlertThreshold: Double
+    
     @State private var selectedPanel: BarPanel = .overview
+    @State private var selectedUsageMetric: UsageMetric?
     
     let metrics: BarMetrics
     let refreshMetrics: () -> Void
@@ -84,8 +86,20 @@ struct ContentView: View {
             )
         }
     }
-
+    
+    @ViewBuilder
     private var metricsSection: some View {
+        if let selectedUsageMetric {
+            UsageMetricDetailView(metric: selectedUsageMetric) {
+                self.selectedUsageMetric = nil
+            }
+        } else {
+            metricsListSection
+        }
+    }
+
+    
+    private var metricsListSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             MetricRow(
                 title: "Progress",
@@ -110,10 +124,15 @@ struct ContentView: View {
                 .font(.headline)
 
             ForEach(metrics.usage) { usageMetric in
-                UsageMetricRow(
-                    metric: usageMetric,
-                    alertThreshold: usageAlertThreshold
-                )
+                Button {
+                    selectedUsageMetric = usageMetric
+                } label: {
+                    UsageMetricRow(
+                        metric: usageMetric,
+                        alertThreshold: usageAlertThreshold
+                    )
+                }
+                .buttonStyle(.plain)
             }
             
             if let metricsLoadError {
@@ -263,6 +282,66 @@ struct UsageMetricRow: View {
                     MetricRow(title: "Remaining", value: "\(metric.remainingUnits)")
                 }
             }
+        }
+    }
+}
+
+struct UsageMetricDetailView: View {
+    let metric: UsageMetric
+    let onBack: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button {
+                onBack()
+            } label: {
+                Label("Metrics", systemImage: "chevron.left")
+            }
+            .buttonStyle(.plain)
+            .font(.caption)
+            
+            Text(metric.title)
+                            .font(.headline)
+
+                        ProgressView(value: metric.usedFraction)
+                            .tint(progressTint)
+
+                        MetricRow(
+                            title: "Used",
+                            value: "\(metric.usedUnits)"
+                        )
+
+                        MetricRow(
+                            title: "Limit",
+                            value: "\(metric.limitUnits)"
+                        )
+
+                        MetricRow(
+                            title: "Remaining",
+                            value: "\(metric.remainingUnits)"
+                        )
+
+                        MetricRow(
+                            title: "Reset",
+                            value: metric.resetDescription
+                        )
+
+                        MetricRow(
+                            title: "Usage",
+                            value: metric.usedFraction.formatted(.percent.precision(.fractionLength(0)))
+                        )
+        }
+        
+    }
+    
+    private var progressTint: Color {
+        switch metric.usedFraction {
+        case ..<0.6:
+            return .green
+        case ..<0.85:
+            return .orange
+        default:
+            return .red
         }
     }
 }
