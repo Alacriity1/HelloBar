@@ -11,6 +11,7 @@ struct HelloBarApp: App {
     @AppStorage("usageAlertThreshold") private var usageAlertThreshold = 0.9
     @State private var metrics = MetricsLoader.loadBundledMetricsOrFallback()
     @State private var metricsLoadError: String?
+    @State private var history = MetricHistory.sample
     
     var body: some Scene {
         let status = Binding<BarStatus>(
@@ -41,10 +42,13 @@ struct HelloBarApp: App {
                 usageAlertThreshold: $usageAlertThreshold,
                 metrics: metrics,
                 refreshMetrics: {
-                    metrics = BarMetrics.refreshed()
+                    let refreshedMetrics = BarMetrics.refreshed()
+                    metrics = refreshedMetrics
+                    history.append(refreshedMetrics.progress)
                     lastUpdated.wrappedValue = Date()
                 },
-                metricsLoadError: metricsLoadError
+                metricsLoadError: metricsLoadError,
+                history: history
             )
         } label: {
             TimeMenuBarLabel(

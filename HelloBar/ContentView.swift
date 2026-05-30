@@ -15,6 +15,7 @@ struct ContentView: View {
     let metrics: BarMetrics
     let refreshMetrics: () -> Void
     let metricsLoadError: String?
+    let history: MetricHistory
     
     var body: some View {
         VStack {
@@ -90,7 +91,7 @@ struct ContentView: View {
     @ViewBuilder
     private var metricsSection: some View {
         if let selectedUsageMetric {
-            UsageMetricDetailView(metric: selectedUsageMetric) {
+            UsageMetricDetailView(metric: selectedUsageMetric, alertThreshold: usageAlertThreshold) {
                 self.selectedUsageMetric = nil
             }
         } else {
@@ -107,6 +108,7 @@ struct ContentView: View {
             )
 
             ProgressView(value: metrics.progress)
+            MetricHistoryView(history: history)
 
             MetricRow(
                 title: "Load",
@@ -212,6 +214,18 @@ struct MetricRow: View {
     }
 }
 
+private func usageTint(for metric: UsageMetric, alertThreshold: Double) -> Color {
+    let warningThreshold = alertThreshold * 0.75
+
+    if metric.usedFraction >= alertThreshold {
+        return .red
+    } else if metric.usedFraction >= warningThreshold {
+        return .orange
+    } else {
+        return .green
+    }
+}
+
 struct UsageMetricRow: View {
     @State private var isShowingDetails = false
     let metric: UsageMetric
@@ -220,17 +234,6 @@ struct UsageMetricRow: View {
     private var isAlerting: Bool {
         metric.usedFraction >= alertThreshold
     }
-    
-    private var progressTint: Color {
-            switch metric.usedFraction {
-            case ..<0.6:
-                return .green
-            case ..<0.85:
-                return .orange
-            default:
-                return .red
-            }
-        }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -247,7 +250,7 @@ struct UsageMetricRow: View {
             }
 
             ProgressView(value: metric.usedFraction)
-                .tint(progressTint)
+                .tint(usageTint(for: metric, alertThreshold: alertThreshold))
 
             Text(metric.resetDescription)
                 .font(.caption2)
@@ -288,6 +291,7 @@ struct UsageMetricRow: View {
 
 struct UsageMetricDetailView: View {
     let metric: UsageMetric
+    let alertThreshold: Double
     let onBack: () -> Void
     
     var body: some View {
@@ -304,7 +308,7 @@ struct UsageMetricDetailView: View {
                             .font(.headline)
 
                         ProgressView(value: metric.usedFraction)
-                            .tint(progressTint)
+                        .tint(usageTint(for: metric, alertThreshold: alertThreshold))
 
                         MetricRow(
                             title: "Used",
@@ -333,15 +337,52 @@ struct UsageMetricDetailView: View {
         }
         
     }
-    
-    private var progressTint: Color {
-        switch metric.usedFraction {
-        case ..<0.6:
-            return .green
-        case ..<0.85:
-            return .orange
-        default:
-            return .red
+
+}
+
+struct MetricHistoryView: View {
+    let history: MetricHistory
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Canvas { context, size in
+                guard !history.values.isEmpty else {
+                    return
+                }
+
+                let barCount = history.values.count
+                let spacing: CGFloat = 2
+                let totalSpacing = spacing * CGFloat(max(barCount - 1, 0))
+                let barWidth = max((size.width - totalSpacing) / CGFloat(barCount), 1)
+
+                for (index, value) in history.values.enumerated() {
+                    let clampedValue = min(max(value, 0), 1)
+                    let height = size.height * clampedValue
+                    let x = CGFloat(index) * (barWidth + spacing)
+                    let y = size.height - height
+
+                    let rect = CGRect(
+                        x: x,
+                        y: y,
+                        width: barWidth,
+                        height: height
+                    )
+
+                    context.fill(
+                        Path(roundedRect: rect, cornerRadius: 2),
+                        with: .color(.blue)
+                    )
+                }
+            }
+            .frame(height: 44)
+
+            HStack {
+                Text("Peak \(history.peak.formatted(.percent.precision(.fractionLength(0))))")
+                Spacer()
+                Text("Avg \(history.average.formatted(.percent.precision(.fractionLength(0))))")
+            }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
         }
     }
 }
