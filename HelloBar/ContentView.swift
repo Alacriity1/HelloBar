@@ -13,7 +13,9 @@ struct ContentView: View {
     @State private var selectedUsageMetric: UsageMetric?
     
     let metrics: BarMetrics
-    let refreshMetrics: () -> Void
+//    let refreshMetrics: () -> Void
+    let refreshMetrics: () async -> Void
+    let isRefreshingMetrics: Bool
     let metricsLoadError: String?
     let history: MetricHistory
     
@@ -143,9 +145,18 @@ struct ContentView: View {
                     .foregroundStyle(.red)
             }
 
-            Button("Refresh Metrics") {
-                refreshMetrics()
+            Button {
+                Task {
+                    await refreshMetrics() //wait for the fake fetch to finish.
+                }
+            } label: {
+                if isRefreshingMetrics {
+                    Label("Refreshing...", systemImage: "arrow.triangle.2.circlepath")
+                } else {
+                    Label("Refresh Metrics", systemImage: "arrow.clockwise")
+                }
             }
+            .disabled(isRefreshingMetrics)
         }
     }
 

@@ -12,6 +12,7 @@ struct HelloBarApp: App {
     @State private var metrics = MetricsLoader.loadBundledMetricsOrFallback()
     @State private var metricsLoadError: String?
     @State private var history = MetricHistory.sample
+    @State private var isRefreshingMetrics = false
     
     var body: some Scene {
         let status = Binding<BarStatus>(
@@ -42,11 +43,27 @@ struct HelloBarApp: App {
                 usageAlertThreshold: $usageAlertThreshold,
                 metrics: metrics,
                 refreshMetrics: {
-                    let refreshedMetrics = BarMetrics.refreshed()
-                    metrics = refreshedMetrics
-                    history.append(refreshedMetrics.progress)
-                    lastUpdated.wrappedValue = Date()
+                    guard !isRefreshingMetrics else {
+                        return
+                    }
+
+                    isRefreshingMetrics = true
+
+                    do {
+                        try await Task.sleep(for: .seconds(1))
+
+                        let refreshedMetrics = BarMetrics.refreshed()
+                        metrics = refreshedMetrics
+                        history.append(refreshedMetrics.progress) // maybe remove
+                        metricsLoadError = nil
+                        lastUpdated.wrappedValue = Date()
+                    } catch {
+                        metricsLoadError = error.localizedDescription
+                    }
+
+                    isRefreshingMetrics = false
                 },
+                isRefreshingMetrics: isRefreshingMetrics,
                 metricsLoadError: metricsLoadError,
                 history: history
             )
